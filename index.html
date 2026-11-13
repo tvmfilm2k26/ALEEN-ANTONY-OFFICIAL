@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALEEN ANTONY OFFICIAL - Secure Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans Malayalam', sans-serif;
+      background: radial-gradient(circle at top right, #1e293b, #0f172a 60%, #020617);
+      min-height: 100vh;
+      color: #f8fafc;
+    }
+    .brand-font {
+      font-family: 'Cinzel', serif;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fde68a 0%, #f59e0b 50%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .gold-btn:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
+    }
+    .drop-zone-active {
+      border-color: #fbbf24 !important;
+      background: rgba(245, 158, 11, 0.12) !important;
+      transform: scale(1.01);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+  </style>
+</head>
+<body class="antialiased selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-5 right-5 z-50 hidden transform transition-all duration-300">
+    <div id="toastBox" class="px-5 py-3.5 rounded-xl shadow-2xl border flex items-center gap-3 text-sm font-semibold">
+      <span id="toastIcon"></span>
+      <span id="toastMsg"></span>
+    </div>
+  </div>
+
+  <!-- ==================== 1. SECURE LOGIN GATE (DEFAULT VIEW) ==================== -->
+  <div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md glass-panel rounded-3xl p-8 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Company Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/40 mb-4 shadow-lg">
+          <svg class="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h1 class="brand-font text-2xl sm:text-3xl font-extrabold tracking-wider gold-gradient-text">
+          ALEEN ANTONY OFFICIAL
+        </h1>
+        <p class="text-xs text-slate-400 mt-1.5 tracking-wide uppercase">
+          Private &amp; Confidential Portal
+        </p>
+      </div>
+
+      <!-- Login Mode Switcher -->
+      <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800 mb-6">
+        <button id="tabMemberBtn" onclick="switchLoginTab('member')" class="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all bg-amber-500 text-slate-950 shadow">
+          മെമ്പേഴ്സ് ലോഗിൻ
+        </button>
+        <button id="tabDirectorBtn" onclick="switchLoginTab('director')" class="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white">
+          ഡയറക്ടർ / ഓണർ
+        </button>
+      </div>
+
+      <!-- Member Login Form -->
+      <form id="memberLoginForm" onsubmit="handleMemberLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            മെമ്പറുടെ പേര് (Member Name)
+          </label>
+          <input type="text" id="memberNameInput" required placeholder="നിങ്ങളുടെ പേര് നൽകുക"
+            class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 outline-none text-white placeholder-slate-500 transition" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            4 അക്ക പാസ്‌കോഡ് (4-Digit Code)
+          </label>
+          <input type="password" id="memberPinInput" required maxlength="4" inputmode="numeric" pattern="[0-9]{1,4}" placeholder="••••"
+            class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 outline-none text-white tracking-[0.5em] text-center text-lg font-bold placeholder-slate-500 transition" />
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider mt-2 shadow-lg">
+          രേഖകൾ പരിശോധിക്കുക (Login)
+        </button>
+      </form>
+
+      <!-- Director / Owner Login Form -->
+      <form id="directorLoginForm" onsubmit="handleDirectorLogin(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1.5">
+            ഡയറക്ടർ പാസ്‌വേഡ് (Director Key)
+          </label>
+          <input type="password" id="directorPassInput" required placeholder="ഡയറക്ടർ കോഡ് നൽകുക"
+            class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-amber-500/40 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 outline-none text-white placeholder-slate-500 transition" />
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-xl gold-btn text-sm uppercase tracking-wider mt-2 shadow-lg">
+          ഓണർ പാനൽ തുറക്കുക
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
+        <p class="text-[11px] text-slate-500">
+          ലോഗിൻ ചെയ്യാതെ യാതൊരു രേഖകളും പുറത്ത് കാണാൻ സാധിക്കില്ല.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. DIRECTOR / OWNER DASHBOARD ==================== -->
+  <div id="directorDashboard" class="hidden min-h-screen flex flex-col">
+    <!-- Top Navbar -->
+    <header class="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-amber-500/20 px-4 sm:px-8 py-4">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-400 font-bold brand-font text-lg">
+            AA
+          </div>
+          <div>
+            <h1 class="brand-font text-lg sm:text-xl font-bold gold-gradient-text tracking-wide">
+              ALEEN ANTONY OFFICIAL
+            </h1>
+            <p class="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Director / Owner Control Panel
+            </p>
+          </div>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          ലോഗൗട്ട് (Logout)
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
+
+      <!-- SECTION A: INSTANT DIRECT UPLOAD (NO TITLE NEEDED) -->
+      <section class="glass-panel rounded-3xl p-6 sm:p-8 border border-amber-500/30">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <span class="p-2 rounded-lg bg-amber-500/20 text-amber-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                </svg>
+              </span>
+              ഡയറക്റ്റ് അപ്‌ലോഡ് (Direct Instant Upload)
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">
+              ടൈറ്റിൽ ഒന്നും നൽകാതെ തന്നെ ഫോട്ടോ, വീഡിയോ, PDF എന്നിവ നേരിട്ട് തിരഞ്ഞെടുത്താൽ ഉടൻ അപ്‌ലോഡ് ആകും.
+            </p>
+          </div>
+          <span id="uploadStatusBadge" class="hidden px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-semibold animate-pulse">
+            അപ്‌ലോഡ് ചെയ്യുന്നു...
+          </span>
+        </div>
+
+        <!-- Drag & Drop / Direct Click Zone -->
+        <div id="dropZone" onclick="document.getElementById('directFileInput').click()"
+          class="cursor-pointer border-2 border-dashed border-amber-400/50 hover:border-amber-400 rounded-2xl p-8 sm:p-10 text-center bg-slate-900/60 hover:bg-slate-900/90 transition-all group">
+          <input type="file" id="directFileInput" multiple accept="image/*,video/*,application/pdf,.pdf" class="hidden" onchange="handleDirectFiles(this.files)" />
+          
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-bold text-white mb-1">
+            ഫോട്ടോ, വീഡിയോ, PDF എന്നിവ ഇവിടെ ക്ലിക്ക് ചെയ്ത് തിരഞ്ഞെടുക്കുക
+          </h3>
+          <p class="text-xs text-slate-400 mb-4">
+            തിരഞ്ഞെടുത്ത ഉടൻ തന്നെ ഓട്ടോമാറ്റിക്കായി സെന്റ് &amp; അപ്‌ലോഡ് ആകുന്നതാണ് (ഒന്നിലധികം ഫയലുകൾ ഒന്നിച്ച് ഇടാം)
+          </p>
+
+          <div class="inline-flex flex-wrap justify-center gap-2 text-xs">
+            <span class="px-3 py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/20">📷 Photos (JPG, PNG)</span>
+            <span class="px-3 py-1 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/20">🎬 Videos (MP4, MOV)</span>
+            <span class="px-3 py-1 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/20">📄 PDF Documents</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION B: UPLOADED MEDIA & FILES LIST (OWNER VIEW) -->
+      <section class="glass-panel rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-white">അപ്‌ലോഡ് ചെയ്ത ഫയലുകൾ (<span id="ownerFileCount">0</span>)</h2>
+            <p class="text-xs text-slate-400">മെമ്പർമാർക്ക് ലോഗിൻ ചെയ്യുമ്പോൾ കാണാൻ സാധിക്കുന്ന രേഖകൾ</p>
+          </div>
+        </div>
+
+        <div id="ownerFilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Files rendered dynamically -->
+        </div>
+        <div id="ownerEmptyFiles" class="text-center py-10 text-slate-500 text-sm hidden">
+          ഇതുവരെ ഫയലുകൾ ഒന്നും അപ്‌ലോഡ് ചെയ്തിട്ടില്ല. മുകളിലെ ബോക്സിൽ ക്ലിക്ക് ചെയ്ത് ഫയലുകൾ ഇടുക.
+        </div>
+      </section>
+
+      <!-- SECTION C: MEMBERS MANAGEMENT (MAX 20 MEMBERS) -->
+      <section class="glass-panel rounded-3xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-white">മെമ്പേഴ്സ് മാനേജ്‌മെന്റ് (Members List)</h2>
+            <p class="text-xs text-slate-400">പരമാവധി 20 പേരെ വരെ ആഡ് ചെയ്യാം. പേരും പരമാവധി 4 അക്ക നമ്പറും നൽകുക.</p>
+          </div>
+          <span id="memberCountBadge" class="px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
+            0 / 20 Members
+          </span>
+        </div>
+
+        <!-- Add / Edit Member Form -->
+        <form id="memberForm" onsubmit="saveMember(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 mb-6">
+          <input type="hidden" id="editMemberIndex" value="-1" />
+          <div class="sm:col-span-5">
+            <input type="text" id="newMemberName" required placeholder="മെമ്പറുടെ പേര് (ഉദാ: Rahul)"
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 outline-none text-sm text-white" />
+          </div>
+          <div class="sm:col-span-4">
+            <input type="text" id="newMemberCode" required maxlength="4" inputmode="numeric" pattern="[0-9]{1,4}"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+              placeholder="നമ്പർ (Max 4 Digit, ഉദാ: 1234)"
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 outline-none text-sm text-white font-mono tracking-widest" />
+          </div>
+          <div class="sm:col-span-3 flex gap-2">
+            <button type="submit" id="memberSubmitBtn" class="flex-1 py-2.5 px-4 rounded-xl gold-btn text-xs sm:text-sm">
+              + ആഡ് ചെയ്യുക
+            </button>
+            <button type="button" id="cancelEditBtn" onclick="cancelMemberEdit()" class="hidden py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold">
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        <!-- Members Table -->
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-900/90 text-slate-400 text-xs uppercase border-b border-slate-800">
+                <th class="py-3.5 px-4">#</th>
+                <th class="py-3.5 px-4">മെമ്പറുടെ പേര്</th>
+                <th class="py-3.5 px-4">4-Digit നമ്പർ</th>
+                <th class="py-3.5 px-4 text-right">എഡിറ്റ് / നീക്കം ചെയ്യുക</th>
+              </tr>
+            </thead>
+            <tbody id="membersTableBody" class="divide-y divide-slate-800/70 text-sm">
+              <!-- Rows rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="emptyMembersMsg" class="text-center py-8 text-slate-500 text-sm hidden">
+          ഇതുവരെ മെമ്പർമാരെ ആരെയും ആഡ് ചെയ്തിട്ടില്ല.
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==================== 3. MEMBER PORTAL VIEW (RESULT-STYLE VIEW) ==================== -->
+  <div id="memberPortal" class="hidden min-h-screen flex flex-col">
+    <header class="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-amber-500/20 px-4 sm:px-8 py-4">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 class="brand-font text-lg sm:text-xl font-bold gold-gradient-text tracking-wide">
+            ALEEN ANTONY OFFICIAL
+          </h1>
+          <p class="text-xs text-slate-300 mt-0.5">
+            സ്വാഗതം, <span id="loggedMemberDisplay" class="text-amber-400 font-bold"></span>
+          </p>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-semibold transition">
+          പുറത്തുകടക്കുക (Logout)
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-8">
+      <div class="glass-panel rounded-3xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-5 mb-6 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-white">ഔദ്യോഗിക രേഖകളും ഫയലുകളും (Official Records)</h2>
+            <p class="text-xs text-slate-400 mt-1">കമ്പനി അപ്‌ലോഡ് ചെയ്ത ഫോട്ടോ, വീഡിയോ, PDF എന്നിവ താഴെ കാണാം</p>
+          </div>
+          <span id="memberFileCountBadge" class="px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
+            0 Files
+          </span>
+        </div>
+
+        <div id="memberFilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Member view files rendered dynamically -->
+        </div>
+
+        <div id="memberEmptyFiles" class="text-center py-14 text-slate-400 hidden">
+          നിലവിൽ രേഖകൾ ഒന്നും അപ്‌ലോഡ് ചെയ്തിട്ടില്ല.
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== FULLSCREEN PREVIEW MODAL ==================== -->
+  <div id="previewModal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="relative w-full max-w-4xl bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3.5 bg-slate-950 border-b border-slate-800">
+        <h3 id="previewTitle" class="text-sm font-semibold text-white truncate pr-4">File Preview</h3>
+        <div class="flex items-center gap-2">
+          <a id="previewDownloadBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold hover:bg-amber-400 transition">
+            Download
+          </a>
+          <button onclick="closePreview()" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white">
+            ✕
+          </button>
+        </div>
+      </div>
+      <div id="previewContent" class="p-4 flex items-center justify-center max-h-[80vh] overflow-auto bg-slate-950">
+        <!-- Dynamic preview content -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== CONFIGURATION & STATE ====================
+    const DIRECTOR_CODE = "aleen9";
+    const MAX_MEMBERS = 20;
+    const MEMBERS_STORAGE_KEY = "aleen_antony_official_members_v1";
+
+    let members = JSON.parse(localStorage.getItem(MEMBERS_STORAGE_KEY)) || [];
+    let db = null;
+
+    // ==================== INDEXEDDB FOR LARGE FILES (PHOTO, VIDEO, PDF) ====================
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("AleenAntonyOfficialDB", 1);
+        request.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains("files")) {
+            database.createObjectStore("files", { keyPath: "id", autoIncrement: true });
+          }
+        };
+        request.onsuccess = (e) => {
+          db = e.target.result;
+          resolve(db);
+        };
+        request.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function addFileToDB(fileRecord) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(["files"], "readwrite");
+        const store = tx.objectStore("files");
+        const req = store.add(fileRecord);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function getAllFilesFromDB() {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(["files"], "readonly");
+        const store = tx.objectStore("files");
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function deleteFileFromDB(id) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(["files"], "readwrite");
+        const store = tx.objectStore("files");
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // ==================== TOAST NOTIFICATION ====================
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      const box = document.getElementById("toastBox");
+      const icon = document.getElementById("toastIcon");
+      const text = document.getElementById("toastMsg");
+
+      text.textContent = msg;
+      if (type === "error") {
+        box.className = "px-5 py-3.5 rounded-xl shadow-2xl border flex items-center gap-3 text-sm font-semibold bg-red-950/95 border-red-500/50 text-red-200";
+        icon.textContent = "⚠️";
+      } else {
+        box.className = "px-5 py-3.5 rounded-xl shadow-2xl border flex items-center gap-3 text-sm font-semibold bg-emerald-950/95 border-emerald-500/50 text-emerald-200";
+        icon.textContent = "✅";
+      }
+
+      toast.classList.remove("hidden");
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3200);
+    }
+
+    // ==================== LOGIN NAVIGATION & AUTHENTICATION ====================
+    function switchLoginTab(mode) {
+      const memberForm = document.getElementById("memberLoginForm");
+      const directorForm = document.getElementById("directorLoginForm");
+      const tabMember = document.getElementById("tabMemberBtn");
+      const tabDirector = document.getElementById("tabDirectorBtn");
+
+      if (mode === "member") {
+        memberForm.classList.remove("hidden");
+        directorForm.classList.add("hidden");
+        tabMember.className = "py-2.5 px-3 rounded-xl text-sm font-semibold transition-all bg-amber-500 text-slate-950 shadow";
+        tabDirector.className = "py-2.5 px-3 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white";
+      } else {
+        directorForm.classList.remove("hidden");
+        memberForm.classList.add("hidden");
+        tabDirector.className = "py-2.5 px-3 rounded-xl text-sm font-semibold transition-all bg-amber-500 text-slate-950 shadow";
+        tabMember.className = "py-2.5 px-3 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white";
+      }
+    }
+
+    async function handleDirectorLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById("directorPassInput").value.trim();
+      if (pass === DIRECTOR_CODE) {
+        document.getElementById("directorPassInput").value = "";
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("directorDashboard").classList.remove("hidden");
+        renderMembersTable();
+        await renderFiles();
+        showToast("ഡയറക്ടർ പാനൽ വിജയകരമായി തുറന്നു!");
+      } else {
+        showToast("തെറ്റായ ഡയറക്ടർ പാസ്‌വേഡ്!", "error");
+      }
+    }
+
+    async function handleMemberLogin(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById("memberNameInput").value.trim().toLowerCase();
+      const pinInput = document.getElementById("memberPinInput").value.trim();
+
+      const matchedMember = members.find(
+        (m) => m.name.trim().toLowerCase() === nameInput && m.code === pinInput
+      );
+
+      if (matchedMember) {
+        document.getElementById("memberNameInput").value = "";
+        document.getElementById("memberPinInput").value = "";
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("memberPortal").classList.remove("hidden");
+        document.getElementById("loggedMemberDisplay").textContent = matchedMember.name;
+        await renderFiles();
+        showToast(`സ്വാഗതം ${matchedMember.name}!`);
+      } else {
+        showToast("പേര് അല്ലെങ്കിൽ 4 അക്ക നമ്പർ തെറ്റാണ്!", "error");
+      }
+    }
+
+    function logout() {
+      document.getElementById("directorDashboard").classList.add("hidden");
+      document.getElementById("memberPortal").classList.add("hidden");
+      document.getElementById("loginScreen").classList.remove("hidden");
+      showToast("സുരക്ഷിതമായി ലോഗൗട്ട് ചെയ്തു.");
+    }
+
+    // ==================== DIRECT INSTANT FILE UPLOAD (NO TITLE) ====================
+    const dropZone = document.getElementById("dropZone");
+
+    ["dragenter", "dragover"].forEach((evt) => {
+      dropZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("drop-zone-active");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((evt) => {
+      dropZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("drop-zone-active");
+      });
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleDirectFiles(files);
+      }
+    });
+
+    async function handleDirectFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+
+      const badge = document.getElementById("uploadStatusBadge");
+      badge.classList.remove("hidden");
+
+      let uploadedCount = 0;
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const isImage = file.type.startsWith("image/");
+        const isVideo = file.type.startsWith("video/");
+        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+        if (!isImage && !isVideo && !isPdf) {
+          showToast(`${file.name} പിന്തുണയ്ക്കുന്ന ഫയൽ അല്ല (Photo, Video, PDF മാത്രം).`, "error");
+          continue;
+        }
+
+        const record = {
+          name: file.name,
+          type: isImage ? "image" : isVideo ? "video" : "pdf",
+          mimeType: file.type || (isPdf ? "application/pdf" : ""),
+          size: formatBytes(file.size),
+          uploadedAt: new Date().toLocaleString("en-IN", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          }),
+          blob: file,
+        };
+
+        await addFileToDB(record);
+        uploadedCount++;
+      }
+
+      document.getElementById("directFileInput").value = "";
+      badge.classList.add("hidden");
+
+      if (uploadedCount > 0) {
+        await renderFiles();
+        showToast(`${uploadedCount} ഫയൽ നേരിട്ട് അപ്‌ലോഡ് ചെയ്തു!`);
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return "0 B";
+      const k = 1024;
+      const sizes = ["B", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+    }
+
+    // ==================== RENDER FILES FOR OWNER & MEMBER ====================
+    async function renderFiles() {
+      const files = await getAllFilesFromDB();
+      files.sort((a, b) => b.id - a.id); // Newest first
+
+      // Update counts
+      document.getElementById("ownerFileCount").textContent = files.length;
+      document.getElementById("memberFileCountBadge").textContent = `${files.length} Files`;
+
+      const ownerGrid = document.getElementById("ownerFilesGrid");
+      const memberGrid = document.getElementById("memberFilesGrid");
+      const ownerEmpty = document.getElementById("ownerEmptyFiles");
+      const memberEmpty = document.getElementById("memberEmptyFiles");
+
+      ownerGrid.innerHTML = "";
+      memberGrid.innerHTML = "";
+
+      if (files.length === 0) {
+        ownerEmpty.classList.remove("hidden");
+        memberEmpty.classList.remove("hidden");
+        return;
+      } else {
+        ownerEmpty.classList.add("hidden");
+        memberEmpty.classList.add("hidden");
+      }
+
+      files.forEach((item) => {
+        const fileURL = URL.createObjectURL(item.blob);
+
+        let mediaPreviewHTML = "";
+        let badgeHTML = "";
+
+        if (item.type === "image") {
+          mediaPreviewHTML = `<img src="${fileURL}" alt="${item.name}" class="w-full h-44 object-cover" />`;
+          badgeHTML = `<span class="px-2.5 py-0.5 rounded-md bg-blue-500/20 text-blue-300 text-[11px] font-semibold">PHOTO</span>`;
+        } else if (item.type === "video") {
+          mediaPreviewHTML = `<video src="${fileURL}" class="w-full h-44 object-cover bg-black" muted preload="metadata"></video>`;
+          badgeHTML = `<span class="px-2.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[11px] font-semibold">VIDEO</span>`;
+        } else {
+          mediaPreviewHTML = `
+            <div class="w-full h-44 bg-gradient-to-br from-rose-950/60 to-slate-900 flex flex-col items-center justify-center text-rose-400">
+              <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+              <span class="text-xs font-bold tracking-wider">PDF DOCUMENT</span>
+            </div>`;
+          badgeHTML = `<span class="px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 text-[11px] font-semibold">PDF</span>`;
+        }
+
+        // Owner Card
+        const ownerCard = document.createElement("div");
+        ownerCard.className = "rounded-2xl bg-slate-900/90 border border-slate-800 overflow-hidden flex flex-col justify-between hover:border-amber-500/40 transition";
+        ownerCard.innerHTML = `
+          <div class="relative cursor-pointer group" onclick="openPreview(${item.id})">
+            ${mediaPreviewHTML}
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold">തുറക്കുക (View)</span>
+            </div>
+            <div class="absolute top-2.5 left-2.5">${badgeHTML}</div>
+          </div>
+          <div class="p-4 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-white truncate" title="${item.name}">${item.name}</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">${item.size} • ${item.uploadedAt}</p>
+            </div>
+            <button onclick="removeFile(${item.id})" title="Delete File"
+              class="p-2 rounded-xl bg-red-500/15 hover:bg-red-500/30 text-red-400 transition shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        `;
+        ownerGrid.appendChild(ownerCard);
+
+        // Member Card (No delete button, clean view & download)
+        const memberCard = document.createElement("div");
+        memberCard.className = "rounded-2xl bg-slate-900/90 border border-slate-800 overflow-hidden flex flex-col justify-between hover:border-amber-400/50 transition shadow-lg";
+        memberCard.innerHTML = `
+          <div class="relative cursor-pointer group" onclick="openPreview(${item.id})">
+            ${mediaPreviewHTML}
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span class="px-3.5 py-1.5 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold">പരിശോധിക്കുക (Open)</span>
+            </div>
+            <div class="absolute top-2.5 left-2.5">${badgeHTML}</div>
+          </div>
+          <div class="p-4">
+            <p class="text-sm font-semibold text-white truncate mb-1" title="${item.name}">${item.name}</p>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3">
+              <span>${item.size}</span>
+              <span>${item.uploadedAt}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="openPreview(${item.id})" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition">
+                തുറക്കുക
+              </button>
+              <a href="${fileURL}" download="${item.name}" class="py-2 rounded-xl gold-btn text-center text-xs">
+                ഡൗൺലോഡ്
+              </a>
+            </div>
+          </div>
+        `;
+        memberGrid.appendChild(memberCard);
+      });
+    }
+
+    async function removeFile(id) {
+      await deleteFileFromDB(id);
+      await renderFiles();
+      showToast("ഫയൽ നീക്കം ചെയ്തു.");
+    }
+
+    // ==================== PREVIEW MODAL ====================
+    async function openPreview(id) {
+      const files = await getAllFilesFromDB();
+      const item = files.find((f) => f.id === id);
+      if (!item) return;
+
+      const url = URL.createObjectURL(item.blob);
+      const modal = document.getElementById("previewModal");
+      const title = document.getElementById("previewTitle");
+      const content = document.getElementById("previewContent");
+      const dlBtn = document.getElementById("previewDownloadBtn");
+
+      title.textContent = item.name;
+      dlBtn.href = url;
+      dlBtn.download = item.name;
+
+      if (item.type === "image") {
+        content.innerHTML = `<img src="${url}" class="max-h-[75vh] max-w-full rounded-lg object-contain" />`;
+      } else if (item.type === "video") {
+        content.innerHTML = `<video src="${url}" controls autoplay class="max-h-[75vh] w-full rounded-lg"></video>`;
+      } else {
+        content.innerHTML = `<iframe src="${url}" class="w-full h-[75vh] rounded-lg bg-white"></iframe>`;
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    function closePreview() {
+      const modal = document.getElementById("previewModal");
+      document.getElementById("previewContent").innerHTML = "";
+      modal.classList.add("hidden");
+    }
+
+    // ==================== MEMBERS CRUD (OWNER ONLY, MAX 20) ====================
+    function saveMembersToStorage() {
+      localStorage.setItem(MEMBERS_STORAGE_KEY, JSON.stringify(members));
+    }
+
+    function renderMembersTable() {
+      const tbody = document.getElementById("membersTableBody");
+      const emptyMsg = document.getElementById("emptyMembersMsg");
+      const countBadge = document.getElementById("memberCountBadge");
+
+      countBadge.textContent = `${members.length} / ${MAX_MEMBERS} Members`;
+      tbody.innerHTML = "";
+
+      if (members.length === 0) {
+        emptyMsg.classList.remove("hidden");
+        return;
+      } else {
+        emptyMsg.classList.add("hidden");
+      }
+
+      members.forEach((m, index) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="py-3.5 px-4 text-slate-400 font-mono">${index + 1}</td>
+          <td class="py-3.5 px-4 font-semibold text-white">${m.name}</td>
+          <td class="py-3.5 px-4">
+            <span class="px-3 py-1 rounded-lg bg-amber-500/15 text-amber-300 font-mono font-bold tracking-widest border border-amber-500/20">
+              ${m.code}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 text-right space-x-2">
+            <button onclick="editMember(${index})" class="px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/30 text-blue-300 text-xs font-semibold transition">
+              എഡിറ്റ് (Edit)
+            </button>
+            <button onclick="deleteMember(${index})" class="px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/30 text-red-400 text-xs font-semibold transition">
+              നീക്കം ചെയ്യുക
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function saveMember(e) {
+      e.preventDefault();
+      const name = document.getElementById("newMemberName").value.trim();
+      const code = document.getElementById("newMemberCode").value.trim();
+      const editIdx = parseInt(document.getElementById("editMemberIndex").value, 10);
+
+      if (!name || !/^\d{1,4}$/.test(code)) {
+        showToast("പേരും പരമാവധി 4 അക്കമുള്ള നമ്പറും കൃത്യമായി നൽകുക.", "error");
+        return;
+      }
+
+      if (editIdx === -1) {
+        if (members.length >= MAX_MEMBERS) {
+          showToast("പരമാവധി 20 മെമ്പർമാരെ മാത്രമേ ആഡ് ചെയ്യാൻ സാധിക്കൂ!", "error");
+          return;
+        }
+        members.push({ name, code });
+        showToast("പുതിയ മെമ്പറെ വിജയകരമായി ആഡ് ചെയ്തു!");
+      } else {
+        members[editIdx] = { name, code };
+        showToast("മെമ്പറുടെ വിവരങ്ങൾ അപ്‌ഡേറ്റ് ചെയ്തു!");
+        cancelMemberEdit();
+      }
+
+      saveMembersToStorage();
+      renderMembersTable();
+      document.getElementById("memberForm").reset();
+      document.getElementById("editMemberIndex").value = "-1";
+    }
+
+    function editMember(index) {
+      const m = members[index];
+      document.getElementById("newMemberName").value = m.name;
+      document.getElementById("newMemberCode").value = m.code;
+      document.getElementById("editMemberIndex").value = index;
+      document.getElementById("memberSubmitBtn").textContent = "അപ്‌ഡേറ്റ് ചെയ്യുക";
+      document.getElementById("cancelEditBtn").classList.remove("hidden");
+      document.getElementById("newMemberName").focus();
+    }
+
+    function cancelMemberEdit() {
+      document.getElementById("memberForm").reset();
+      document.getElementById("editMemberIndex").value = "-1";
+      document.getElementById("memberSubmitBtn").textContent = "+ ആഡ് ചെയ്യുക";
+      document.getElementById("cancelEditBtn").classList.add("hidden");
+    }
+
+    function deleteMember(index) {
+      members.splice(index, 1);
+      saveMembersToStorage();
+      renderMembersTable();
+      cancelMemberEdit();
+      showToast("മെമ്പറെ നീക്കം ചെയ്തു.");
+    }
+
+    // ==================== INITIALIZE APP ====================
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initDB();
+      renderMembersTable();
+    });
+  </script>
+</body>
+</html>
